@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>strtly Landing Page</title>
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="min-h-screen flex flex-col bg-white">
+    <!-- Page Container -->
+    <div class="flex flex-col min-h-screen">
+      <!-- Header -->
+      <header class="px-4 lg:px-6 h-16 flex items-center border-b">
+        <!-- Logo / Brand -->
+        <a class="flex items-center justify-center" href="#">
+          <!-- Rocket icon -->
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="lucide lucide-rocket"
+          >
+            <path
+              d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"
+            />
+            <path
+              d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"
+            />
+            <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0" />
+            <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5" />
+          </svg>
+          <span class="ml-2 text-lg font-bold">strtly</span>
+        </a>
+
+        <!-- Navigation -->
+        <nav class="ml-auto flex gap-4 sm:gap-6">
+          <a
+            class="text-sm font-medium hover:underline underline-offset-4"
+            href="#features"
+          >
+            Features
+          </a>
+          <a
+            class="text-sm font-medium hover:underline underline-offset-4"
+            href="#testimonials"
+          >
+            Testimonials
+          </a>
+          <a
+            class="text-sm font-medium hover:underline underline-offset-4"
+            href="#contact"
+          >
+            Contact
+          </a>
+        </nav>
+      </header>
+
+      <!-- Main -->
+      <main class="flex-1">
+        <!-- Hero Section -->
+        <section class="w-full py-12 md:py-24 lg:py-32 xl:py-48">
+          <div class="max-w-7xl mx-auto px-4 md:px-6">
+            <div class="flex flex-col items-center space-y-4 text-center">
+              <div class="space-y-2">
+                <h1
+                  class="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none"
+                >
+                  Strtly
+                </h1>
+                <p class="mx-auto max-w-[700px] text-gray-500">
+                  All the resources you need to launch your startup.
+                </p>
+              </div>
+              <div class="space-x-4">
+                <!-- Primary button -->
+                <a
+                  href="#"
+                  class="inline-flex items-center justify-center bg-blue-600 text-white hover:bg-blue-700 font-medium rounded-md h-11 px-8 text-sm transition-colors"
+                >
+                  Get Started
+                  <!-- Arrow Right icon -->
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="ml-2 h-4 w-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M9 5l7 7-7 7"
+                    />
+                  </svg>
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Features Section -->
+        <section
+          id="features"
+          class="w-full py-12 md:py-24 lg:py-32 bg-gray-50"
+        >
+          <div class="max-w-7xl mx-auto px-4 md:px-6">
+            <div class="grid gap-10 px-10 md:gap-16 lg:grid-cols-3">
+              <!-- Feature 1 -->
+              <div class="space-y-4">
+                <div class="inline-block rounded-lg bg-blue-600 p-2 text-white">
+                  <!-- Code2 icon -->
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <polyline points="16 18 22 12 16 6" />
+                    <polyline points="8 6 2 12 8 18" />
+                  </svg>
+                </div>
+                <h3 class="text-xl font-bold">Modern Tech Stack</h3>
+                <p class="text-gray-500">
+                  Build your startup with the latest technologies and frameworks
+                  that scale with your growth.
+                </p>
+              </div>
+              <!-- Feature 2 -->
+              <div class="space-y-4">
+                <div class="inline-block rounded-lg bg-blue-600 p-2 text-white">
+                  <!-- Users icon -->
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path
+                      d="M17 21v-2a4 4 0 00-3-3.87M7 21v-2a4
+                       4 0 013-3.87M16 3.13a4 4 0 010 7.75M8
+                       3.13a4 4 0 010 7.75"
+                    />
+                  </svg>
+                </div>
+                <h3 class="text-xl font-bold">Community Support</h3>
+                <p class="text-gray-500">
+                  Connect with fellow founders and get the support you need to
+                  overcome challenges.
+                </p>
+              </div>
+              <!-- Feature 3 -->
+              <div class="space-y-4">
+                <div class="inline-block rounded-lg bg-blue-600 p-2 text-white">
+                  <!-- LineChart icon -->
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M3 3v18h18" />
+                    <path d="M19 9l-5 5-4-4-3 3" />
+                  </svg>
+                </div>
+                <h3 class="text-xl font-bold">Growth Focused</h3>
+                <p class="text-gray-500">
+                  Access proven strategies and tools to accelerate your
+                  startup's growth journey.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Testimonials Section -->
+        <section id="testimonials" class="w-full py-12 md:py-24 lg:py-32">
+          <div class="max-w-7xl mx-auto px-4 md:px-6">
+            <div
+              class="flex flex-col items-center justify-center space-y-4 text-center"
+            >
+              <div class="space-y-2">
+                <h2 class="text-3xl font-bold tracking-tighter md:text-4xl">
+                  Join Successful Founders
+                </h2>
+                <p
+                  class="max-w-[900px] text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed"
+                >
+                  See how other founders are building successful software
+                  companies with our platform.
+                </p>
+              </div>
+            </div>
+
+            <div class="grid gap-6 lg:grid-cols-3 lg:gap-12 mt-8">
+              <!-- Testimonial 1 -->
+              <div
+                class="flex flex-col justify-between gap-4 p-6 bg-gray-50 rounded-lg"
+              >
+                <div class="space-y-2">
+                  <p class="text-sm text-gray-500">
+                    "The resources and community at strtly have been invaluable
+                    in helping me build and scale my SaaS startup."
+                  </p>
+                </div>
+                <div class="flex items-center gap-4">
+                  <div class="rounded-full bg-gray-100 w-10 h-10"></div>
+                  <div>
+                    <p class="text-sm font-medium">Founder #1</p>
+                    <p class="text-sm text-gray-500">Tech Startup</p>
+                  </div>
+                </div>
+              </div>
+              <!-- Testimonial 2 -->
+              <div
+                class="flex flex-col justify-between gap-4 p-6 bg-gray-50 rounded-lg"
+              >
+                <div class="space-y-2">
+                  <p class="text-sm text-gray-500">
+                    "I've never felt more supported as a solo founder. strtly's
+                    community is the real deal."
+                  </p>
+                </div>
+                <div class="flex items-center gap-4">
+                  <div class="rounded-full bg-gray-100 w-10 h-10"></div>
+                  <div>
+                    <p class="text-sm font-medium">Founder #2</p>
+                    <p class="text-sm text-gray-500">Mobile SaaS</p>
+                  </div>
+                </div>
+              </div>
+              <!-- Testimonial 3 -->
+              <div
+                class="flex flex-col justify-between gap-4 p-6 bg-gray-50 rounded-lg"
+              >
+                <div class="space-y-2">
+                  <p class="text-sm text-gray-500">
+                    "The step-by-step guides and templates gave me the
+                    confidence to launch my product quickly."
+                  </p>
+                </div>
+                <div class="flex items-center gap-4">
+                  <div class="rounded-full bg-gray-100 w-10 h-10"></div>
+                  <div>
+                    <p class="text-sm font-medium">Founder #3</p>
+                    <p class="text-sm text-gray-500">AI Startup</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact" class="w-full py-12 md:py-24 lg:py-32 bg-gray-50">
+          <div class="max-w-7xl mx-auto px-4 md:px-6">
+            <div
+              class="flex flex-col items-center justify-center space-y-4 text-center"
+            >
+              <div class="space-y-2">
+                <h2 class="text-3xl font-bold tracking-tighter sm:text-5xl">
+                  Start Your Journey Today
+                </h2>
+                <p class="max-w-[600px] text-gray-500 md:text-xl">
+                  Join our community of founders and build the next great
+                  software company.
+                </p>
+              </div>
+              <div class="w-full max-w-sm space-y-2">
+                <a
+                  href="#"
+                  class="inline-flex w-full items-center justify-center bg-blue-600 text-white hover:bg-blue-700 font-medium rounded-md h-11 px-6 text-sm transition-colors"
+                >
+                  Get Started
+                  <!-- Arrow Right icon -->
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="ml-2 h-4 w-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M9 5l7 7-7 7"
+                    />
+                  </svg>
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <!-- Footer -->
+      <footer
+        class="flex flex-col gap-2 sm:flex-row py-6 w-full shrink-0 items-center px-4 md:px-6 border-t"
+      >
+        <p class="text-xs text-gray-500">
+          © 2024 strtly.com. All rights reserved.
+        </p>
+        <nav class="sm:ml-auto flex gap-4 sm:gap-6">
+          <a class="text-xs hover:underline underline-offset-4" href="#">
+            Terms of Service
+          </a>
+          <a class="text-xs hover:underline underline-offset-4" href="#">
+            Privacy
+          </a>
+        </nav>
+      </footer>
+    </div>
+  </body>
+</html>
