@@ -2,39 +2,19 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Startup-Ideas on Strtly</title>
-    <link>//localhost:1313/tags/startup-ideas/</link>
+    <link>https://www.strtly.com/tags/startup-ideas/</link>
     <description>Recent content in Startup-Ideas on Strtly</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
     <copyright>© 2025 </copyright>
-    <lastBuildDate>Mon, 22 Jan 2024 00:00:00 +0000</lastBuildDate><atom:link href="//localhost:1313/tags/startup-ideas/index.xml" rel="self" type="application/rss+xml" />
-    
-    <item>
-      <title>Affilate marketing</title>
-      <link>//localhost:1313/startup-ideas/affiliate/</link>
-      <pubDate>Mon, 22 Jan 2024 00:00:00 +0000</pubDate>
-      
-      <guid>//localhost:1313/startup-ideas/affiliate/</guid>
-      <description></description>
-      
-    </item>
-    
-    <item>
-      <title>Startup ideas</title>
-      <link>//localhost:1313/startup-ideas/</link>
-      <pubDate>Mon, 22 Jan 2024 00:00:00 +0000</pubDate>
-      
-      <guid>//localhost:1313/startup-ideas/</guid>
-      <description></description>
-      
-    </item>
+    <lastBuildDate>Mon, 22 Jan 2024 00:00:00 +0000</lastBuildDate><atom:link href="https://www.strtly.com/tags/startup-ideas/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>Strtly</title>
-      <link>//localhost:1313/</link>
+      <link>https://www.strtly.com/</link>
       <pubDate>Mon, 22 Jan 2024 00:00:00 +0000</pubDate>
       
-      <guid>//localhost:1313/</guid>
+      <guid>https://www.strtly.com/</guid>
       <description></description>
       
     </item>
