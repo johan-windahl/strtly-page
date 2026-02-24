@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>md2pdf</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: sans-serif;
+    }
+
+    #app {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    #toolbar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 16px;
+      background: #2d2d2d;
+      color: #ccc;
+      flex-shrink: 0;
+    }
+
+    #toolbar label {
+      font-size: 14px;
+    }
+
+    #toolbar select {
+      padding: 4px 8px;
+      border-radius: 4px;
+      border: 1px solid #555;
+      background: #3c3c3c;
+      color: #eee;
+      font-size: 14px;
+    }
+
+    #toolbar button {
+      padding: 6px 16px;
+      border: none;
+      border-radius: 4px;
+      background: #0078d4;
+      color: #fff;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    #toolbar button:hover {
+      background: #106ebe;
+    }
+
+    #main {
+      display: flex;
+      flex: 1;
+      min-height: 0;
+    }
+
+    #editor {
+      width: 50%;
+      height: 100%;
+      resize: none;
+      border: none;
+      outline: none;
+      padding: 20px;
+      font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+      font-size: 14px;
+      line-height: 1.6;
+      background: #1e1e1e;
+      color: #d4d4d4;
+      tab-size: 2;
+    }
+
+    #preview {
+      width: 50%;
+      height: 100%;
+      overflow-y: auto;
+      padding: 20px;
+      background: #e0e0e0;
+    }
+
+    #render-target {
+      position: absolute;
+      left: -9999px;
+      top: 0;
+    }
+
+    #render-target pre,
+    #render-target table,
+    #render-target .mermaid,
+    #render-target blockquote,
+    #render-target img {
+      break-inside: avoid;
+    }
+
+    #render-target .mermaid svg {
+      max-width: 100%;
+      height: auto;
+    }
+
+    .page {
+      background: white;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      margin: 20px auto;
+      padding: 20mm;
+      box-sizing: border-box;
+      overflow: hidden;
+      position: relative;
+      transform-origin: top center;
+    }
+
+    /* Shared typography for render-target (measurement) and .page (display) */
+    .page, #render-target {
+      font-family: system-ui, -apple-system, sans-serif;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+    .page h1, #render-target h1 { font-size: 24px; margin: 1.2em 0 0.6em; }
+    .page h2, #render-target h2 { font-size: 20px; margin: 1.1em 0 0.5em; }
+    .page h3, #render-target h3 { font-size: 17px; margin: 1em 0 0.4em; }
+    .page h1:first-child, #render-target h1:first-child,
+    .page h2:first-child, #render-target h2:first-child,
+    .page h3:first-child, #render-target h3:first-child { margin-top: 0; }
+    .page p, #render-target p { margin: 0.6em 0; line-height: 1.7; font-size: 14px; }
+    .page ul, .page ol, #render-target ul, #render-target ol { margin: 0.6em 0 0.6em 1.5em; font-size: 14px; line-height: 1.7; }
+    .page pre, #render-target pre { background: #f5f5f5; padding: 10px; border-radius: 4px; overflow-x: auto; margin: 0.8em 0; font-size: 13px; }
+    .page code, #render-target code { font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 13px; }
+    .page p code, .page li code, .page td code,
+    #render-target p code, #render-target li code, #render-target td code {
+      background: #f0f0f0;
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-size: 0.9em;
+    }
+    .page blockquote, #render-target blockquote { border-left: 4px solid #ccc; padding-left: 12px; margin: 0.8em 0; color: #555; }
+    .page table, #render-target table { border-collapse: collapse; margin: 0.8em 0; font-size: 14px; }
+    .page th, .page td, #render-target th, #render-target td { border: 1px solid #ccc; padding: 6px 12px; }
+    .page th, #render-target th { background: #f0f0f0; }
+    .page img, #render-target img { max-width: 100%; }
+    .page .mermaid, #render-target .mermaid { break-inside: avoid; overflow: hidden; text-align: center; }
+    .page .mermaid svg, #render-target .mermaid svg { max-width: 100%; height: auto; display: inline-block; }
+    .page hr, #render-target hr { border: none; border-top: 1px solid #ccc; margin: 1.5em 0; }
+
+    .page-counter {
+      position: absolute;
+      bottom: 10px;
+      right: 20px;
+      font-size: 11px;
+      color: #aaa;
+      font-family: system-ui, -apple-system, sans-serif;
+    }
+
+    .pagebreak {
+      display: none;
+    }
+
+    @media print {
+      /* Hide toolbar, editor, render-target, print-content */
+      #toolbar, #render-target, #print-content { display: none !important; }
+
+      /* Reset layout */
+      #app { height: auto !important; }
+      #main { display: block !important; }
+      #editor { display: none !important; }
+      #preview {
+        width: 100% !important;
+        height: auto !important;
+        background: none !important;
+        overflow: visible !important;
+        padding: 0 !important;
+      }
+
+      /* Each .page = exactly one physical page */
+      .page {
+        box-shadow: none !important;
+        transform: none !important;
+        margin: 0 !important;
+        /* Width, height, padding set via JS with mm units for print accuracy */
+        overflow: hidden !important;
+        page-break-after: always;
+        break-after: page;
+        page-break-inside: avoid;
+        break-inside: avoid;
+      }
+      .page:last-child {
+        page-break-after: auto;
+        break-after: auto;
+      }
+
+      /* Hide page counter in print */
+      .page-counter { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+  <div id="app">
+    <div id="toolbar">
+      <label for="paper-size">Paper size:</label>
+      <select id="paper-size">
+        <option value="a4">A4</option>
+        <option value="letter">Letter</option>
+      </select>
+      <label style="display:flex;align-items:center;gap:4px;cursor:pointer"><input type="checkbox" id="fit-diagrams" checked> Fit diagrams on page</label>
+      <button id="pagebreak-btn">Insert Page Break</button>
+      <button id="export-btn">Export to PDF</button>
+    </div>
+    <div id="main">
+      <textarea id="editor"># Welcome to md2pdf
+
+A simple markdown editor with live preview, page breaks, and PDF export.
+
+## Features
+
+- **Live preview** as you type
+- **Mermaid diagrams** rendered inline
+- **PDF export** with page breaks
+- Paper size selection (A4 / Letter)
+
+## Mermaid Diagram Example
+
+```mermaid
+graph TD
+    A[Start] --> B{Is it working?}
+    B -- Yes --> C[Great!]
+    B -- No --> D[Debug]
+    D --> B
+```
+
+## Code Block Example
+
+```javascript
+function greet(name) {
+  return `Hello, ${name}!`;
+}
+console.log(greet('World'));
+```
+
+## Another Section
+
+This is a paragraph to demonstrate text rendering. The preview panel on the right
+will update as you type, with a short debounce delay to keep things smooth.
+
+> Blockquotes work too. This is a quoted paragraph.
+
+| Feature   | Status |
+|-----------|--------|
+| Markdown  | Done   |
+| Mermaid   | Done   |
+| PDF Export | WIP   |
+</textarea>
+      <div id="preview"></div>
+    </div>
+  </div>
+  <div id="render-target"></div>
+  <script>
+    const editor = document.getElementById('editor');
+    const preview = document.getElementById('preview');
+    const renderTarget = document.getElementById('render-target');
+    const paperSizeSelect = document.getElementById('paper-size');
+
+    let debounceTimer = null;
+    let mermaidCounter = 0;
+
+    mermaid.initialize({ startOnLoad: false, theme: 'default' });
+
+    // Page dimensions in mm
+    const PAGE_SIZES = {
+      a4:     { width: 210, height: 297 },
+      letter: { width: 215.9, height: 279.4 }
+    };
+    const PAGE_MARGIN = 20; // mm on all sides
+
+    // Convert mm to px (96 dpi: 1in = 25.4mm, 1in = 96px)
+    function mmToPx(mm) {
+      return mm * (96 / 25.4);
+    }
+
+    function getPageDimensions() {
+      const size = PAGE_SIZES[paperSizeSelect.value] || PAGE_SIZES.a4;
+      const pageWidthPx = mmToPx(size.width);
+      const pageHeightPx = mmToPx(size.height);
+      const marginPx = mmToPx(PAGE_MARGIN);
+      const contentWidthPx = pageWidthPx - 2 * marginPx;
+      const contentHeightPx = pageHeightPx - 2 * marginPx;
+      return { pageWidthPx, pageHeightPx, marginPx, contentWidthPx, contentHeightPx };
+    }
+
+    function getPreviewScale(pageWidthPx) {
+      const previewWidth = preview.clientWidth;
+      const padding = 40; // leave some breathing room
+      const available = previewWidth - padding;
+      if (available >= pageWidthPx) return 1;
+      return available / pageWidthPx;
+    }
+
+    function isHeading(el) {
+      return /^H[1-6]$/.test(el.tagName);
+    }
+
+    function getElementHeight(el) {
+      const style = window.getComputedStyle(el);
+      const marginTop = parseFloat(style.marginTop) || 0;
+      const marginBottom = parseFloat(style.marginBottom) || 0;
+      return el.offsetHeight + marginTop + marginBottom;
+    }
+
+    function splitIntoPages(contentHeightPx) {
+      const children = Array.from(renderTarget.children);
+      const pages = [];
+      let currentPageChildren = [];
+      let usedHeight = 0;
+
+      for (let i = 0; i < children.length; i++) {
+        const child = children[i];
+
+        // Check for manual page break
+        if (child.classList && child.classList.contains('pagebreak')) {
+          pages.push(currentPageChildren);
+          currentPageChildren = [];
+          usedHeight = 0;
+          continue;
+        }
+
+        const totalHeight = getElementHeight(child);
+
+        // If this is a heading, check if it fits together with the next element
+        // to avoid orphaned headings at the bottom of a page
+        if (isHeading(child) && i + 1 < children.length) {
+          const next = children[i + 1];
+          if (!next.classList?.contains('pagebreak')) {
+            const nextHeight = getElementHeight(next);
+            const combinedHeight = totalHeight + nextHeight;
+
+            // If heading + next element don't fit on current page, start new page
+            if (usedHeight > 0 && usedHeight + combinedHeight > contentHeightPx) {
+              pages.push(currentPageChildren);
+              currentPageChildren = [];
+              usedHeight = 0;
+            }
+          }
+        } else if (usedHeight > 0 && usedHeight + totalHeight > contentHeightPx) {
+          // Normal overflow: start new page
+          pages.push(currentPageChildren);
+          currentPageChildren = [];
+          usedHeight = 0;
+        }
+
+        currentPageChildren.push(child);
+        usedHeight += totalHeight;
+      }
+
+      // Push remaining
+      if (currentPageChildren.length > 0) {
+        pages.push(currentPageChildren);
+      }
+
+      // Ensure at least one page
+      if (pages.length === 0) {
+        pages.push([]);
+      }
+
+      return pages;
+    }
+
+    function buildPages(pages, dims, scale) {
+      preview.innerHTML = '';
+      const { pageWidthPx, pageHeightPx } = dims;
+      const totalPages = pages.length;
+      const size = PAGE_SIZES[paperSizeSelect.value] || PAGE_SIZES.a4;
+
+      pages.forEach((children, index) => {
+        const page = document.createElement('div');
+        page.className = 'page';
+        // Use px for screen display (scaled), but set mm-based data attrs for print
+        page.style.width = pageWidthPx + 'px';
+        page.style.minHeight = pageHeightPx + 'px';
+        page.style.transform = `scale(${scale})`;
+        // mm-based dimensions for print accuracy (set via CSS class in print media)
+        page.setAttribute('data-width', size.width + 'mm');
+        page.setAttribute('data-height', size.height + 'mm');
+        // Adjust margin to account for scaling so pages stack properly
+        const scaledHeight = pageHeightPx * scale;
+        const actualHeight = pageHeightPx;
+        const marginAdjust = (actualHeight - scaledHeight) / 2;
+        page.style.marginTop = (20 - marginAdjust) + 'px';
+        page.style.marginBottom = (20 - marginAdjust) + 'px';
+
+        children.forEach((child) => {
+          page.appendChild(child.cloneNode(true));
+        });
+
+        // Page counter (visible in preview only, hidden in print via CSS)
+        const counter = document.createElement('div');
+        counter.className = 'page-counter';
+        counter.textContent = `${index + 1} / ${totalPages}`;
+        page.appendChild(counter);
+
+        preview.appendChild(page);
+      });
+    }
+
+    async function renderMarkdown() {
+      const text = editor.value;
+      let html = marked.parse(text);
+
+      // Replace manual page break markers (handle various marked output formats)
+      html = html.replace(/<p>\s*---pagebreak---\s*<\/p>/gi, '<div class="pagebreak"></div>');
+      html = html.replace(/<hr>\s*<p>\s*pagebreak---\s*<\/p>/gi, '<div class="pagebreak"></div>');
+      html = html.replace(/<p>—pagebreak—<\/p>/gi, '<div class="pagebreak"></div>');
+
+      // Render into hidden container for measurement
+      const dims = getPageDimensions();
+      renderTarget.style.width = dims.contentWidthPx + 'px';
+      renderTarget.innerHTML = html;
+
+      // Fallback: find any remaining pagebreak markers in DOM
+      renderTarget.querySelectorAll('p, hr').forEach((el) => {
+        if (el.textContent.trim() === '---pagebreak---' ||
+            el.textContent.trim() === '\u2014pagebreak\u2014') {
+          const pb = document.createElement('div');
+          pb.className = 'pagebreak';
+          el.replaceWith(pb);
+        }
+      });
+
+      // Replace mermaid code blocks with mermaid divs
+      const codeBlocks = renderTarget.querySelectorAll('pre > code.language-mermaid');
+      const hasMermaid = codeBlocks.length > 0;
+
+      codeBlocks.forEach((codeEl) => {
+        const pre = codeEl.parentElement;
+        const mermaidDiv = document.createElement('div');
+        mermaidDiv.className = 'mermaid';
+        mermaidDiv.id = 'mermaid-' + (mermaidCounter++);
+        mermaidDiv.textContent = codeEl.textContent;
+        pre.replaceWith(mermaidDiv);
+      });
+
+      if (hasMermaid) {
+        await mermaid.run({ nodes: renderTarget.querySelectorAll('.mermaid') });
+      }
+
+      // Small delay to let the browser finish layout
+      await new Promise(r => setTimeout(r, 50));
+
+      // Scale down mermaid SVGs to fit on a page with room for a heading above
+      const fitDiagrams = document.getElementById('fit-diagrams').checked;
+      const maxMermaidHeight = dims.contentHeightPx * 0.85;
+      renderTarget.querySelectorAll('.mermaid svg').forEach((svg) => {
+        const viewBox = svg.getAttribute('viewBox');
+        if (viewBox) {
+          svg.removeAttribute('height');
+          svg.removeAttribute('width');
+          svg.style.width = '100%';
+          svg.style.height = 'auto';
+          svg.style.maxHeight = '';
+          // If enabled, constrain tall diagrams to fit with heading on one page
+          if (fitDiagrams && svg.getBoundingClientRect().height > maxMermaidHeight) {
+            svg.style.width = 'auto';
+            svg.style.maxHeight = maxMermaidHeight + 'px';
+          }
+        }
+      });
+
+      // Measure and split
+      const scale = getPreviewScale(dims.pageWidthPx);
+      const pages = splitIntoPages(dims.contentHeightPx);
+      buildPages(pages, dims, scale);
+    }
+
+    editor.addEventListener('input', () => {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(renderMarkdown, 300);
+    });
+
+    paperSizeSelect.addEventListener('change', () => {
+      renderMarkdown();
+    });
+
+    document.getElementById('fit-diagrams').addEventListener('change', () => {
+      renderMarkdown();
+    });
+
+    // PDF Export via window.print()
+    const exportBtn = document.getElementById('export-btn');
+
+    function triggerExport() {
+      const sizeKey = paperSizeSelect.value;
+      const sizeName = sizeKey === 'letter' ? 'letter' : 'A4';
+      const dims = PAGE_SIZES[sizeKey] || PAGE_SIZES.a4;
+
+      // Inject print styles: zero page margin (the .page padding handles margins)
+      const style = document.createElement('style');
+      style.id = 'print-page-size';
+      style.textContent = `
+        @page { size: ${sizeName}; margin: 0; }
+        .page {
+          width: ${dims.width}mm !important;
+          height: ${dims.height}mm !important;
+          padding: ${PAGE_MARGIN}mm !important;
+        }
+      `;
+      document.head.appendChild(style);
+
+      window.print();
+
+      const cleanup = () => {
+        const el = document.getElementById('print-page-size');
+        if (el) el.remove();
+      };
+      window.addEventListener('afterprint', cleanup, { once: true });
+      setTimeout(cleanup, 3000);
+    }
+
+    exportBtn.addEventListener('click', triggerExport);
+
+    // Insert page break at cursor position
+    document.getElementById('pagebreak-btn').addEventListener('click', () => {
+      const start = editor.selectionStart;
+      const end = editor.selectionEnd;
+      const text = editor.value;
+      const insert = '\n\n---pagebreak---\n\n';
+      editor.value = text.substring(0, start) + insert + text.substring(end);
+      editor.selectionStart = editor.selectionEnd = start + insert.length;
+      editor.focus();
+      editor.dispatchEvent(new Event('input'));
+    });
+
+    // Keyboard shortcut: Cmd/Ctrl+P triggers export
+    document.addEventListener('keydown', (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'p') {
+        e.preventDefault();
+        triggerExport();
+      }
+    });
+
+    // Sync scroll: editor → preview (proportional)
+    let syncingScroll = false;
+    editor.addEventListener('scroll', () => {
+      if (syncingScroll) return;
+      syncingScroll = true;
+      const ratio = editor.scrollTop / (editor.scrollHeight - editor.clientHeight || 1);
+      preview.scrollTop = ratio * (preview.scrollHeight - preview.clientHeight);
+      syncingScroll = false;
+    });
+    preview.addEventListener('scroll', () => {
+      if (syncingScroll) return;
+      syncingScroll = true;
+      const ratio = preview.scrollTop / (preview.scrollHeight - preview.clientHeight || 1);
+      editor.scrollTop = ratio * (editor.scrollHeight - editor.clientHeight);
+      syncingScroll = false;
+    });
+
+    // Re-scale pages on preview panel resize
+    window.addEventListener('resize', () => {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(renderMarkdown, 200);
+    });
+
+    // Initial render
+    renderMarkdown();
+  </script>
+</body>
+</html>
