@@ -168,6 +168,7 @@
       #toolbar, #render-target, #print-content { display: none !important; }
 
       /* Reset layout */
+      html, body { height: auto !important; margin: 0 !important; }
       #app { height: auto !important; }
       #main { display: block !important; }
       #editor { display: none !important; }
@@ -514,11 +515,30 @@ will update as you type, with a short debounce delay to keep things smooth.
       `;
       document.head.appendChild(style);
 
+      // Strip inline transforms so Chrome doesn't keep a compositing layer
+      // around — that layer can force the whole print output to rasterize.
+      const pageEls = Array.from(document.querySelectorAll('#preview .page'));
+      const savedTransforms = pageEls.map((el) => ({
+        transform: el.style.transform,
+        marginTop: el.style.marginTop,
+        marginBottom: el.style.marginBottom,
+      }));
+      pageEls.forEach((el) => {
+        el.style.transform = '';
+        el.style.marginTop = '';
+        el.style.marginBottom = '';
+      });
+
       window.print();
 
       const cleanup = () => {
         const el = document.getElementById('print-page-size');
         if (el) el.remove();
+        pageEls.forEach((el, i) => {
+          el.style.transform = savedTransforms[i].transform;
+          el.style.marginTop = savedTransforms[i].marginTop;
+          el.style.marginBottom = savedTransforms[i].marginBottom;
+        });
       };
       window.addEventListener('afterprint', cleanup, { once: true });
       setTimeout(cleanup, 3000);
